@@ -15,12 +15,13 @@ from pydantic import BaseModel, Field, model_validator
 
 class AddressType(str, Enum):
     """ISO 20022 AddressType2Code values."""
-    ADDR = "ADDR"   # Postal address
-    PBOX = "PBOX"   # PO Box
-    HOME = "HOME"   # Residential address
-    BIZZ = "BIZZ"   # Business address
-    MLTO = "MLTO"   # Mail-to address
-    DLVY = "DLVY"   # Delivery-to address
+
+    ADDR = "ADDR"  # Postal address
+    PBOX = "PBOX"  # PO Box
+    HOME = "HOME"  # Residential address
+    BIZZ = "BIZZ"  # Business address
+    MLTO = "MLTO"  # Mail-to address
+    DLVY = "DLVY"  # Delivery-to address
 
 
 class PostalAddress24(BaseModel):
@@ -145,15 +146,17 @@ class PostalAddress24(BaseModel):
     @model_validator(mode="after")
     def validate_sr2026_compliance(self) -> "PostalAddress24":
         """Warn if the address relies solely on free-text lines (SR 2026 reject risk)."""
-        has_structured = any([
-            self.street_name,
-            self.building_number,
-            self.building_name,
-            self.post_code,
-            self.town_location_name,
-            self.district_name,
-            self.country_sub_division,
-        ])
+        has_structured = any(
+            [
+                self.street_name,
+                self.building_number,
+                self.building_name,
+                self.post_code,
+                self.town_location_name,
+                self.district_name,
+                self.country_sub_division,
+            ]
+        )
         if not has_structured and self.address_lines:
             # This is valid today but will be rejected by SWIFT from Nov 2026
             # Validation errors are surfaced by validator.py, not raised here
@@ -162,18 +165,28 @@ class PostalAddress24(BaseModel):
 
     def is_structured(self) -> bool:
         """Return True if address has at least one structured field beyond TownName/Country."""
-        return any([
-            self.street_name,
-            self.building_number,
-            self.building_name,
-            self.post_code,
-            self.country_sub_division,
-        ])
+        return any(
+            [
+                self.street_name,
+                self.building_number,
+                self.building_name,
+                self.post_code,
+                self.country_sub_division,
+            ]
+        )
 
     def to_xml_dict(self) -> dict:
         """Return a dict of ISO 20022 XML element names → values (non-None only)."""
         mapping = {
-            "AdrTp": (self.address_type.value if hasattr(self.address_type, "value") else self.address_type) if self.address_type else None,
+            "AdrTp": (
+                (
+                    self.address_type.value
+                    if hasattr(self.address_type, "value")
+                    else self.address_type
+                )
+                if self.address_type
+                else None
+            ),
             "Dept": self.department,
             "SubDept": self.sub_department,
             "StrtNm": self.street_name,
