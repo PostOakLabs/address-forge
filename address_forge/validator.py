@@ -21,14 +21,15 @@ from .models import PostalAddress24
 
 
 class ErrorSeverity(str, Enum):
-    ERROR = "ERROR"     # Message will be rejected by SWIFT from SR 2026
-    WARNING = "WARNING" # Message may be rejected; remediation strongly recommended
-    INFO = "INFO"       # Informational only
+    ERROR = "ERROR"  # Message will be rejected by SWIFT from SR 2026
+    WARNING = "WARNING"  # Message may be rejected; remediation strongly recommended
+    INFO = "INFO"  # Informational only
 
 
 @dataclass
 class ValidationError:
     """A single validation finding against an SR 2026 rule."""
+
     code: str
     severity: ErrorSeverity
     field: Optional[str]
@@ -43,6 +44,7 @@ class ValidationError:
 @dataclass
 class ValidationResult:
     """Aggregate result of validating a PostalAddress24 against SR 2026 rules."""
+
     errors: list[ValidationError] = field(default_factory=list)
     warnings: list[ValidationError] = field(default_factory=list)
     info: list[ValidationError] = field(default_factory=list)
@@ -86,23 +88,256 @@ class ValidationResult:
 # Recognised ISO 3166-1 alpha-2 country codes (abbreviated for core validation)
 # Full list is maintained in address_forge/countries/
 _ISO_COUNTRY_CODES = {
-    "AD","AE","AF","AG","AI","AL","AM","AO","AQ","AR","AS","AT","AU","AW","AX",
-    "AZ","BA","BB","BD","BE","BF","BG","BH","BI","BJ","BL","BM","BN","BO","BQ",
-    "BR","BS","BT","BV","BW","BY","BZ","CA","CC","CD","CF","CG","CH","CI","CK",
-    "CL","CM","CN","CO","CR","CU","CV","CW","CX","CY","CZ","DE","DJ","DK","DM",
-    "DO","DZ","EC","EE","EG","EH","ER","ES","ET","FI","FJ","FK","FM","FO","FR",
-    "GA","GB","GD","GE","GF","GG","GH","GI","GL","GM","GN","GP","GQ","GR","GS",
-    "GT","GU","GW","GY","HK","HM","HN","HR","HT","HU","ID","IE","IL","IM","IN",
-    "IO","IQ","IR","IS","IT","JE","JM","JO","JP","KE","KG","KH","KI","KM","KN",
-    "KP","KR","KW","KY","KZ","LA","LB","LC","LI","LK","LR","LS","LT","LU","LV",
-    "LY","MA","MC","MD","ME","MF","MG","MH","MK","ML","MM","MN","MO","MP","MQ",
-    "MR","MS","MT","MU","MV","MW","MX","MY","MZ","NA","NC","NE","NF","NG","NI",
-    "NL","NO","NP","NR","NU","NZ","OM","PA","PE","PF","PG","PH","PK","PL","PM",
-    "PN","PR","PS","PT","PW","PY","QA","RE","RO","RS","RU","RW","SA","SB","SC",
-    "SD","SE","SG","SH","SI","SJ","SK","SL","SM","SN","SO","SR","SS","ST","SV",
-    "SX","SY","SZ","TC","TD","TF","TG","TH","TJ","TK","TL","TM","TN","TO","TR",
-    "TT","TV","TW","TZ","UA","UG","UM","US","UY","UZ","VA","VC","VE","VG","VI",
-    "VN","VU","WF","WS","XK","YE","YT","ZA","ZM","ZW",
+    "AD",
+    "AE",
+    "AF",
+    "AG",
+    "AI",
+    "AL",
+    "AM",
+    "AO",
+    "AQ",
+    "AR",
+    "AS",
+    "AT",
+    "AU",
+    "AW",
+    "AX",
+    "AZ",
+    "BA",
+    "BB",
+    "BD",
+    "BE",
+    "BF",
+    "BG",
+    "BH",
+    "BI",
+    "BJ",
+    "BL",
+    "BM",
+    "BN",
+    "BO",
+    "BQ",
+    "BR",
+    "BS",
+    "BT",
+    "BV",
+    "BW",
+    "BY",
+    "BZ",
+    "CA",
+    "CC",
+    "CD",
+    "CF",
+    "CG",
+    "CH",
+    "CI",
+    "CK",
+    "CL",
+    "CM",
+    "CN",
+    "CO",
+    "CR",
+    "CU",
+    "CV",
+    "CW",
+    "CX",
+    "CY",
+    "CZ",
+    "DE",
+    "DJ",
+    "DK",
+    "DM",
+    "DO",
+    "DZ",
+    "EC",
+    "EE",
+    "EG",
+    "EH",
+    "ER",
+    "ES",
+    "ET",
+    "FI",
+    "FJ",
+    "FK",
+    "FM",
+    "FO",
+    "FR",
+    "GA",
+    "GB",
+    "GD",
+    "GE",
+    "GF",
+    "GG",
+    "GH",
+    "GI",
+    "GL",
+    "GM",
+    "GN",
+    "GP",
+    "GQ",
+    "GR",
+    "GS",
+    "GT",
+    "GU",
+    "GW",
+    "GY",
+    "HK",
+    "HM",
+    "HN",
+    "HR",
+    "HT",
+    "HU",
+    "ID",
+    "IE",
+    "IL",
+    "IM",
+    "IN",
+    "IO",
+    "IQ",
+    "IR",
+    "IS",
+    "IT",
+    "JE",
+    "JM",
+    "JO",
+    "JP",
+    "KE",
+    "KG",
+    "KH",
+    "KI",
+    "KM",
+    "KN",
+    "KP",
+    "KR",
+    "KW",
+    "KY",
+    "KZ",
+    "LA",
+    "LB",
+    "LC",
+    "LI",
+    "LK",
+    "LR",
+    "LS",
+    "LT",
+    "LU",
+    "LV",
+    "LY",
+    "MA",
+    "MC",
+    "MD",
+    "ME",
+    "MF",
+    "MG",
+    "MH",
+    "MK",
+    "ML",
+    "MM",
+    "MN",
+    "MO",
+    "MP",
+    "MQ",
+    "MR",
+    "MS",
+    "MT",
+    "MU",
+    "MV",
+    "MW",
+    "MX",
+    "MY",
+    "MZ",
+    "NA",
+    "NC",
+    "NE",
+    "NF",
+    "NG",
+    "NI",
+    "NL",
+    "NO",
+    "NP",
+    "NR",
+    "NU",
+    "NZ",
+    "OM",
+    "PA",
+    "PE",
+    "PF",
+    "PG",
+    "PH",
+    "PK",
+    "PL",
+    "PM",
+    "PN",
+    "PR",
+    "PS",
+    "PT",
+    "PW",
+    "PY",
+    "QA",
+    "RE",
+    "RO",
+    "RS",
+    "RU",
+    "RW",
+    "SA",
+    "SB",
+    "SC",
+    "SD",
+    "SE",
+    "SG",
+    "SH",
+    "SI",
+    "SJ",
+    "SK",
+    "SL",
+    "SM",
+    "SN",
+    "SO",
+    "SR",
+    "SS",
+    "ST",
+    "SV",
+    "SX",
+    "SY",
+    "SZ",
+    "TC",
+    "TD",
+    "TF",
+    "TG",
+    "TH",
+    "TJ",
+    "TK",
+    "TL",
+    "TM",
+    "TN",
+    "TO",
+    "TR",
+    "TT",
+    "TV",
+    "TW",
+    "TZ",
+    "UA",
+    "UG",
+    "UM",
+    "US",
+    "UY",
+    "UZ",
+    "VA",
+    "VC",
+    "VE",
+    "VG",
+    "VI",
+    "VN",
+    "VU",
+    "WF",
+    "WS",
+    "XK",
+    "YE",
+    "YT",
+    "ZA",
+    "ZM",
+    "ZW",
 }
 
 
@@ -117,124 +352,156 @@ def validate(address: PostalAddress24) -> ValidationResult:
 
     # T9351 — TownName mandatory
     if not address.town_name or not address.town_name.strip():
-        result.errors.append(ValidationError(
-            code="T9351",
-            severity=ErrorSeverity.ERROR,
-            field="TwnNm",
-            message="TownName (TwnNm) is mandatory in PostalAddress24 from SR 2026.",
-            remediation="Populate TwnNm with the town or city name.",
-        ))
+        result.errors.append(
+            ValidationError(
+                code="T9351",
+                severity=ErrorSeverity.ERROR,
+                field="TwnNm",
+                message="TownName (TwnNm) is mandatory in PostalAddress24 from SR 2026.",
+                remediation="Populate TwnNm with the town or city name.",
+            )
+        )
 
     # T9352 — Country mandatory
     if not address.country or not address.country.strip():
-        result.errors.append(ValidationError(
-            code="T9352",
-            severity=ErrorSeverity.ERROR,
-            field="Ctry",
-            message="Country (Ctry) is mandatory in PostalAddress24 from SR 2026.",
-            remediation="Populate Ctry with a valid ISO 3166-1 alpha-2 country code.",
-        ))
+        result.errors.append(
+            ValidationError(
+                code="T9352",
+                severity=ErrorSeverity.ERROR,
+                field="Ctry",
+                message="Country (Ctry) is mandatory in PostalAddress24 from SR 2026.",
+                remediation="Populate Ctry with a valid ISO 3166-1 alpha-2 country code.",
+            )
+        )
 
     # T9354 — Country code format (also catches lowercase codes, which are invalid per ISO 3166-1)
-    elif address.country != address.country.upper() or address.country.upper() not in _ISO_COUNTRY_CODES:
-        result.errors.append(ValidationError(
-            code="T9354",
-            severity=ErrorSeverity.ERROR,
-            field="Ctry",
-            message=(
-                f"Country code '{address.country}' is not a valid ISO 3166-1 alpha-2 code."
-            ),
-            remediation=(
-                "Use a two-letter uppercase ISO 3166-1 alpha-2 country code "
-                "(e.g. GB, US, DE, FR)."
-            ),
-        ))
+    elif (
+        address.country != address.country.upper()
+        or address.country.upper() not in _ISO_COUNTRY_CODES
+    ):
+        result.errors.append(
+            ValidationError(
+                code="T9354",
+                severity=ErrorSeverity.ERROR,
+                field="Ctry",
+                message=(
+                    f"Country code '{address.country}' is not a valid ISO 3166-1 alpha-2 code."
+                ),
+                remediation=(
+                    "Use a two-letter uppercase ISO 3166-1 alpha-2 country code "
+                    "(e.g. GB, US, DE, FR)."
+                ),
+            )
+        )
 
     # T9353 — Unstructured address only (will be rejected when no structured fields present)
     if not address.is_structured() and address.address_lines:
-        result.errors.append(ValidationError(
-            code="T9353",
-            severity=ErrorSeverity.ERROR,
-            field="AdrLine",
-            message=(
-                "Address contains only unstructured free-text lines (AdrLine) with no "
-                "structured fields. SWIFT will reject this from SR 2026 (November 2026)."
-            ),
-            remediation=(
-                "Add at least one structured field: StrtNm, BldgNb, BldgNm, PstCd, "
-                "or CtrySubDvsn alongside TwnNm and Ctry."
-            ),
-        ))
+        result.errors.append(
+            ValidationError(
+                code="T9353",
+                severity=ErrorSeverity.ERROR,
+                field="AdrLine",
+                message=(
+                    "Address contains only unstructured free-text lines (AdrLine) with no "
+                    "structured fields. SWIFT will reject this from SR 2026 (November 2026)."
+                ),
+                remediation=(
+                    "Add at least one structured field: StrtNm, BldgNb, BldgNm, PstCd, "
+                    "or CtrySubDvsn alongside TwnNm and Ctry."
+                ),
+            )
+        )
     elif not address.is_structured() and not address.address_lines:
         # Only TownName and Country — technically valid but very thin
-        result.info.append(ValidationError(
-            code="I0001",
-            severity=ErrorSeverity.INFO,
-            field=None,
-            message=(
-                "Address contains only TownName and Country. "
-                "This is SR 2026 compliant but may be rejected by correspondent banks "
-                "expecting more detail."
-            ),
-            remediation="Consider adding StrtNm, BldgNb, and PstCd.",
-        ))
+        result.info.append(
+            ValidationError(
+                code="I0001",
+                severity=ErrorSeverity.INFO,
+                field=None,
+                message=(
+                    "Address contains only TownName and Country. "
+                    "This is SR 2026 compliant but may be rejected by correspondent banks "
+                    "expecting more detail."
+                ),
+                remediation="Consider adding StrtNm, BldgNb, and PstCd.",
+            )
+        )
 
     # T9356 — Address line count
     if len(address.address_lines) > 7:
-        result.errors.append(ValidationError(
-            code="T9356",
-            severity=ErrorSeverity.ERROR,
-            field="AdrLine",
-            message=(
-                f"Address has {len(address.address_lines)} AdrLine entries; "
-                "ISO 20022 PostalAddress24 allows a maximum of 7."
-            ),
-            remediation="Reduce the number of free-text address lines to 7 or fewer.",
-        ))
+        result.errors.append(
+            ValidationError(
+                code="T9356",
+                severity=ErrorSeverity.ERROR,
+                field="AdrLine",
+                message=(
+                    f"Address has {len(address.address_lines)} AdrLine entries; "
+                    "ISO 20022 PostalAddress24 allows a maximum of 7."
+                ),
+                remediation="Reduce the number of free-text address lines to 7 or fewer.",
+            )
+        )
 
     # W0001 — Address lines present alongside structured fields (mixed address)
     if address.is_structured() and address.address_lines:
-        result.warnings.append(ValidationError(
-            code="W0001",
-            severity=ErrorSeverity.WARNING,
-            field="AdrLine",
-            message=(
-                "Address mixes structured fields with free-text AdrLine entries. "
-                "This is a 'hybrid' address — allowed but some institutions may reject it."
-            ),
-            remediation=(
-                "Prefer fully structured addresses. Remove AdrLine entries if all "
-                "information is captured in structured fields."
-            ),
-        ))
+        result.warnings.append(
+            ValidationError(
+                code="W0001",
+                severity=ErrorSeverity.WARNING,
+                field="AdrLine",
+                message=(
+                    "Address mixes structured fields with free-text AdrLine entries. "
+                    "This is a 'hybrid' address — allowed but some institutions may reject it."
+                ),
+                remediation=(
+                    "Prefer fully structured addresses. Remove AdrLine entries if all "
+                    "information is captured in structured fields."
+                ),
+            )
+        )
 
     # W0002 — Missing post code (expected for most countries)
     if not address.post_code and address.country in {
-        "GB", "US", "DE", "FR", "NL", "BE", "CH", "AT", "AU", "CA", "JP", "SG"
+        "GB",
+        "US",
+        "DE",
+        "FR",
+        "NL",
+        "BE",
+        "CH",
+        "AT",
+        "AU",
+        "CA",
+        "JP",
+        "SG",
     }:
-        result.warnings.append(ValidationError(
-            code="W0002",
-            severity=ErrorSeverity.WARNING,
-            field="PstCd",
-            message=(
-                f"No PostCode (PstCd) provided for country '{address.country}'. "
-                "Most correspondent banks require a post code for this country."
-            ),
-            remediation=f"Add the postal code for the {address.country} address.",
-        ))
+        result.warnings.append(
+            ValidationError(
+                code="W0002",
+                severity=ErrorSeverity.WARNING,
+                field="PstCd",
+                message=(
+                    f"No PostCode (PstCd) provided for country '{address.country}'. "
+                    "Most correspondent banks require a post code for this country."
+                ),
+                remediation=f"Add the postal code for the {address.country} address.",
+            )
+        )
 
     # W0003 — Missing street name (likely to cause downstream enrichment failures)
     if not address.street_name and not address.address_lines and not address.post_box:
-        result.warnings.append(ValidationError(
-            code="W0003",
-            severity=ErrorSeverity.WARNING,
-            field="StrtNm",
-            message=(
-                "No StreetName (StrtNm), AddressLine, or PostBox provided. "
-                "Address may be insufficient for delivery or correspondent bank processing."
-            ),
-            remediation="Add StrtNm and BldgNb for the full address.",
-        ))
+        result.warnings.append(
+            ValidationError(
+                code="W0003",
+                severity=ErrorSeverity.WARNING,
+                field="StrtNm",
+                message=(
+                    "No StreetName (StrtNm), AddressLine, or PostBox provided. "
+                    "Address may be insufficient for delivery or correspondent bank processing."
+                ),
+                remediation="Add StrtNm and BldgNb for the full address.",
+            )
+        )
 
     return result
 
