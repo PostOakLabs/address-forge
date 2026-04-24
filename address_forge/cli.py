@@ -12,15 +12,14 @@ Usage:
 from __future__ import annotations
 
 import json
-import os
 import sys
 
 import click
 
-from .converter import convert, convert_to_xml, convert_batch
-from .validator import validate, remediation_report
-from .models import PostalAddress24
+from .converter import convert, convert_batch, convert_to_xml
 from .countries import list_supported_countries
+from .models import PostalAddress24
+from .validator import validate, remediation_report
 
 
 @click.group()

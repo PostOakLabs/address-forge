@@ -12,15 +12,14 @@ from __future__ import annotations
 
 import json
 import os
-from typing import Optional
 
 try:
     import anthropic
 except ImportError:  # allow import of module without SDK installed (tests mock it)
     anthropic = None  # type: ignore[assignment]
 
-from .models import PostalAddress24
 from .countries import get_country_rules
+from .models import PostalAddress24
 
 
 # ---------------------------------------------------------------------------
@@ -78,11 +77,11 @@ class ConversionResult:
 
     def __init__(
         self,
-        address: Optional[PostalAddress24],
+        address: PostalAddress24 | None,
         raw_input: str,
         raw_llm_response: str,
         confidence: dict[str, float],
-        error: Optional[str] = None,
+        error: str | None = None,
     ):
         self.address = address
         self.raw_input = raw_input
@@ -99,10 +98,10 @@ class ConversionResult:
 
 def convert(
     address_string: str,
-    api_key: Optional[str] = None,
+    api_key: str | None = None,
     model: str = "claude-sonnet-4-20250514",
     max_tokens: int = 1024,
-    country_hint: Optional[str] = None,
+    country_hint: str | None = None,
 ) -> ConversionResult:
     """
     Convert a free-text address string to a PostalAddress24 object.

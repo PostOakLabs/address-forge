@@ -8,7 +8,6 @@ is mandatory for all cross-border MX messages from SWIFT SR 2026 onward.
 from __future__ import annotations
 
 from enum import Enum
-from typing import Optional
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -36,57 +35,57 @@ class PostalAddress24(BaseModel):
     """
 
     # Address type (optional)
-    address_type: Optional[AddressType] = Field(
+    address_type: AddressType | None = Field(
         default=None,
         description="ISO 20022 AddressType2Code. Typically ADDR for postal.",
     )
 
     # Department / sub-department (optional)
-    department: Optional[str] = Field(
+    department: str | None = Field(
         default=None,
         max_length=70,
         description="Name of a division in an organisation.",
     )
-    sub_department: Optional[str] = Field(
+    sub_department: str | None = Field(
         default=None,
         max_length=70,
         description="Identification of a sub-division in an organisation.",
     )
 
     # Street-level fields (SR 2026: at least one structured field or TwnNm+Ctry)
-    street_name: Optional[str] = Field(
+    street_name: str | None = Field(
         default=None,
         max_length=70,
         description="Name of a street or thoroughfare.",
     )
-    building_number: Optional[str] = Field(
+    building_number: str | None = Field(
         default=None,
         max_length=16,
         description="Number that identifies the position of a building on a street.",
     )
-    building_name: Optional[str] = Field(
+    building_name: str | None = Field(
         default=None,
         max_length=35,
         description="Name of the building or house.",
     )
-    floor: Optional[str] = Field(
+    floor: str | None = Field(
         default=None,
         max_length=70,
         description="Floor or storey within a building.",
     )
-    post_box: Optional[str] = Field(
+    post_box: str | None = Field(
         default=None,
         max_length=16,
         description="Numbered box in a post office.",
     )
-    room: Optional[str] = Field(
+    room: str | None = Field(
         default=None,
         max_length=70,
         description="Building room number.",
     )
 
     # Postal code
-    post_code: Optional[str] = Field(
+    post_code: str | None = Field(
         default=None,
         max_length=16,
         description="Identifier for the posting district or zone.",
@@ -100,21 +99,21 @@ class PostalAddress24(BaseModel):
     )
 
     # Town location (optional district/suburb)
-    town_location_name: Optional[str] = Field(
+    town_location_name: str | None = Field(
         default=None,
         max_length=35,
         description="Specific location name within a town.",
     )
 
     # District (optional)
-    district_name: Optional[str] = Field(
+    district_name: str | None = Field(
         default=None,
         max_length=35,
         description="Identifies a subdivision within a country sub-division.",
     )
 
     # Country sub-division (state/province)
-    country_sub_division: Optional[str] = Field(
+    country_sub_division: str | None = Field(
         default=None,
         max_length=35,
         description="Identifies a subdivision of a country (e.g. state, region, county).",
@@ -141,7 +140,7 @@ class PostalAddress24(BaseModel):
     )
 
     # Confidence scores (added by address-forge, not part of ISO 20022 schema)
-    _confidence: Optional[dict[str, float]] = None
+    _confidence: dict[str, float] | None = None
 
     @model_validator(mode="after")
     def validate_sr2026_compliance(self) -> "PostalAddress24":

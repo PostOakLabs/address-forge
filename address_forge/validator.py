@@ -15,7 +15,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
 
 from .models import PostalAddress24
 
@@ -32,7 +31,7 @@ class ValidationError:
 
     code: str
     severity: ErrorSeverity
-    field: Optional[str]
+    field: str | None
     message: str
     remediation: str
 

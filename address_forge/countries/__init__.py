@@ -8,10 +8,9 @@ that are injected into the LLM prompt to improve parsing accuracy.
 from __future__ import annotations
 
 from importlib import import_module
-from typing import Optional
 
 
-def get_country_rules(country_code: str) -> Optional[str]:
+def get_country_rules(country_code: str) -> str | None:
     """
     Return country-specific address parsing rules for the given ISO 3166-1 alpha-2 code.
     Returns None if no rules are defined for the country.
