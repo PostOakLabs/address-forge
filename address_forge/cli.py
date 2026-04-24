@@ -33,6 +33,7 @@ def cli():
 # convert command
 # ---------------------------------------------------------------------------
 
+
 @cli.command()
 @click.argument("address_string")
 @click.option(
@@ -68,7 +69,9 @@ def cli():
     show_default=True,
     help="Run SR 2026 validation after conversion and include results in output.",
 )
-def convert_cmd(address_string, output_format, country_hint, api_key, model, run_validation):
+def convert_cmd(
+    address_string, output_format, country_hint, api_key, model, run_validation
+):
     """
     Convert a free-text ADDRESS_STRING to ISO 20022 PostalAddress24.
 
@@ -121,8 +124,12 @@ def convert_cmd(address_string, output_format, country_hint, api_key, model, run
                 else:
                     click.echo(click.style("✗ SR 2026 validation: FAIL", fg="red"))
                 for finding in val.all_findings:
-                    colour = "red" if finding.severity.value == "ERROR" else (
-                        "yellow" if finding.severity.value == "WARNING" else "blue"
+                    colour = (
+                        "red"
+                        if finding.severity.value == "ERROR"
+                        else (
+                            "yellow" if finding.severity.value == "WARNING" else "blue"
+                        )
                     )
                     click.echo(click.style(f"  {finding}", fg=colour))
         else:
@@ -147,6 +154,7 @@ def convert_cmd(address_string, output_format, country_hint, api_key, model, run
 # ---------------------------------------------------------------------------
 # validate command
 # ---------------------------------------------------------------------------
+
 
 @cli.command()
 @click.argument("address_json")
@@ -177,8 +185,10 @@ def validate_cmd(address_json):
         click.echo(click.style("✗ SR 2026 validation: FAIL", fg="red"))
 
     for finding in result.all_findings:
-        colour = "red" if finding.severity.value == "ERROR" else (
-            "yellow" if finding.severity.value == "WARNING" else "blue"
+        colour = (
+            "red"
+            if finding.severity.value == "ERROR"
+            else ("yellow" if finding.severity.value == "WARNING" else "blue")
         )
         click.echo(click.style(f"  {finding}", fg=colour))
 
@@ -188,6 +198,7 @@ def validate_cmd(address_json):
 # ---------------------------------------------------------------------------
 # validate-csv command
 # ---------------------------------------------------------------------------
+
 
 @cli.command("validate-csv")
 @click.argument("csv_path", type=click.Path(exists=True))
@@ -257,6 +268,7 @@ def validate_csv_cmd(csv_path, address_col, output, api_key):
 # countries command
 # ---------------------------------------------------------------------------
 
+
 @cli.command()
 def countries():
     """List countries with defined address parsing rules."""
@@ -264,7 +276,9 @@ def countries():
     click.echo("Countries with address parsing rules:")
     for code in codes:
         click.echo(f"  {code}")
-    click.echo(f"\nTotal: {len(codes)} (contribute more at github.com/PostOakLabs/address-forge)")
+    click.echo(
+        f"\nTotal: {len(codes)} (contribute more at github.com/PostOakLabs/address-forge)"
+    )
 
 
 def main():

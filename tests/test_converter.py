@@ -25,13 +25,18 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 import address_forge.converter as converter_module
-from address_forge.converter import convert, convert_batch, convert_to_xml, ConversionResult
+from address_forge.converter import (
+    convert,
+    convert_batch,
+    convert_to_xml,
+    ConversionResult,
+)
 from address_forge.models import PostalAddress24
-
 
 # ---------------------------------------------------------------------------
 # Build a fake anthropic module so patch targets always exist
 # ---------------------------------------------------------------------------
+
 
 def _make_fake_anthropic():
     """Return a MagicMock that looks like the anthropic module with Anthropic class."""
@@ -43,6 +48,7 @@ def _make_fake_anthropic():
 # ---------------------------------------------------------------------------
 # Mock helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_mock_client(payload: dict) -> MagicMock:
     """Return a mock anthropic client whose messages.create returns payload as JSON text."""
@@ -79,7 +85,13 @@ UK_STANDARD_PAYLOAD = {
     "town_name": "London",
     "country": "GB",
     "address_lines": [],
-    "confidence": {"street_name": 0.99, "building_number": 0.99, "post_code": 0.98, "town_name": 0.99, "country": 1.0},
+    "confidence": {
+        "street_name": 0.99,
+        "building_number": 0.99,
+        "post_code": 0.98,
+        "town_name": 0.99,
+        "country": 1.0,
+    },
 }
 
 UK_FLAT_PAYLOAD = {
@@ -91,7 +103,13 @@ UK_FLAT_PAYLOAD = {
     "town_name": "London",
     "country": "GB",
     "address_lines": [],
-    "confidence": {"street_name": 0.97, "building_number": 0.95, "post_code": 0.99, "town_name": 0.99, "country": 1.0},
+    "confidence": {
+        "street_name": 0.97,
+        "building_number": 0.95,
+        "post_code": 0.99,
+        "town_name": 0.99,
+        "country": 1.0,
+    },
 }
 
 UK_POSTCODE_VARIANT_PAYLOAD = {
@@ -103,7 +121,13 @@ UK_POSTCODE_VARIANT_PAYLOAD = {
     "country_sub_division": "Greater London",
     "country": "GB",
     "address_lines": [],
-    "confidence": {"street_name": 0.99, "building_number": 1.0, "post_code": 1.0, "town_name": 1.0, "country": 1.0},
+    "confidence": {
+        "street_name": 0.99,
+        "building_number": 1.0,
+        "post_code": 1.0,
+        "town_name": 1.0,
+        "country": 1.0,
+    },
 }
 
 US_STANDARD_PAYLOAD = {
@@ -115,7 +139,13 @@ US_STANDARD_PAYLOAD = {
     "post_code": "20500",
     "country": "US",
     "address_lines": [],
-    "confidence": {"street_name": 0.99, "building_number": 1.0, "post_code": 0.99, "town_name": 0.99, "country": 1.0},
+    "confidence": {
+        "street_name": 0.99,
+        "building_number": 1.0,
+        "post_code": 0.99,
+        "town_name": 0.99,
+        "country": 1.0,
+    },
 }
 
 US_PO_BOX_PAYLOAD = {
@@ -138,7 +168,13 @@ US_ZIP4_PAYLOAD = {
     "post_code": "10118-0110",
     "country": "US",
     "address_lines": [],
-    "confidence": {"street_name": 0.98, "building_number": 0.99, "post_code": 0.97, "town_name": 0.99, "country": 1.0},
+    "confidence": {
+        "street_name": 0.98,
+        "building_number": 0.99,
+        "post_code": 0.97,
+        "town_name": 0.99,
+        "country": 1.0,
+    },
 }
 
 DE_STANDARD_PAYLOAD = {
@@ -149,7 +185,13 @@ DE_STANDARD_PAYLOAD = {
     "town_name": "Berlin",
     "country": "DE",
     "address_lines": [],
-    "confidence": {"street_name": 0.99, "building_number": 0.99, "post_code": 0.99, "town_name": 0.99, "country": 1.0},
+    "confidence": {
+        "street_name": 0.99,
+        "building_number": 0.99,
+        "post_code": 0.99,
+        "town_name": 0.99,
+        "country": 1.0,
+    },
 }
 
 DE_MUNICH_PAYLOAD = {
@@ -160,7 +202,13 @@ DE_MUNICH_PAYLOAD = {
     "town_name": "München",
     "country": "DE",
     "address_lines": [],
-    "confidence": {"street_name": 0.99, "building_number": 0.99, "post_code": 0.98, "town_name": 0.99, "country": 1.0},
+    "confidence": {
+        "street_name": 0.99,
+        "building_number": 0.99,
+        "post_code": 0.98,
+        "town_name": 0.99,
+        "country": 1.0,
+    },
 }
 
 FR_STANDARD_PAYLOAD = {
@@ -171,7 +219,13 @@ FR_STANDARD_PAYLOAD = {
     "town_name": "Paris",
     "country": "FR",
     "address_lines": [],
-    "confidence": {"street_name": 0.98, "building_number": 0.99, "post_code": 0.99, "town_name": 1.0, "country": 1.0},
+    "confidence": {
+        "street_name": 0.98,
+        "building_number": 0.99,
+        "post_code": 0.99,
+        "town_name": 1.0,
+        "country": 1.0,
+    },
 }
 
 FR_LYON_PAYLOAD = {
@@ -182,13 +236,20 @@ FR_LYON_PAYLOAD = {
     "town_name": "Lyon",
     "country": "FR",
     "address_lines": [],
-    "confidence": {"street_name": 0.97, "building_number": 0.99, "post_code": 0.99, "town_name": 0.99, "country": 1.0},
+    "confidence": {
+        "street_name": 0.97,
+        "building_number": 0.99,
+        "post_code": 0.99,
+        "town_name": 0.99,
+        "country": 1.0,
+    },
 }
 
 
 # ---------------------------------------------------------------------------
 # UK Address Tests (3 cases)
 # ---------------------------------------------------------------------------
+
 
 class TestUKAddressParsing:
     def test_uk_standard_address(self):
@@ -207,7 +268,9 @@ class TestUKAddressParsing:
     def test_uk_flat_apartment_address(self):
         """Flat/apartment number goes into building_number."""
         with _patch_claude(UK_FLAT_PAYLOAD):
-            result = convert("Flat 3B, Riverside House, Thames Embankment, London SE1 7PB")
+            result = convert(
+                "Flat 3B, Riverside House, Thames Embankment, London SE1 7PB"
+            )
 
         assert result.success
         assert result.address.building_number == "Flat 3B"
@@ -230,6 +293,7 @@ class TestUKAddressParsing:
 # ---------------------------------------------------------------------------
 # US Address Tests (3 cases)
 # ---------------------------------------------------------------------------
+
 
 class TestUSAddressParsing:
     def test_us_standard_address(self):
@@ -270,6 +334,7 @@ class TestUSAddressParsing:
 # German Address Tests (2 cases)
 # ---------------------------------------------------------------------------
 
+
 class TestGermanAddressParsing:
     def test_de_berlin_standard(self):
         """German address: Unter den Linden 77, Berlin."""
@@ -297,6 +362,7 @@ class TestGermanAddressParsing:
 # ---------------------------------------------------------------------------
 # French Address Tests (2 cases)
 # ---------------------------------------------------------------------------
+
 
 class TestFrenchAddressParsing:
     def test_fr_paris_standard(self):
@@ -326,10 +392,16 @@ class TestFrenchAddressParsing:
 # Country code detection
 # ---------------------------------------------------------------------------
 
+
 class TestCountryCodeDetection:
     def test_country_code_is_iso_alpha2(self):
         """Country code on the model must always be 2 uppercase letters."""
-        for payload in [UK_STANDARD_PAYLOAD, US_STANDARD_PAYLOAD, DE_STANDARD_PAYLOAD, FR_STANDARD_PAYLOAD]:
+        for payload in [
+            UK_STANDARD_PAYLOAD,
+            US_STANDARD_PAYLOAD,
+            DE_STANDARD_PAYLOAD,
+            FR_STANDARD_PAYLOAD,
+        ]:
             with _patch_claude(payload):
                 result = convert("any address string")
             assert result.success
@@ -349,6 +421,7 @@ class TestCountryCodeDetection:
 # ---------------------------------------------------------------------------
 # Error handling
 # ---------------------------------------------------------------------------
+
 
 class TestErrorHandling:
     def test_malformed_json_returns_error_result(self):
@@ -371,7 +444,9 @@ class TestErrorHandling:
     def test_api_exception_returns_error_result(self):
         """If the Anthropic API raises, convert() returns a failed ConversionResult."""
         fake_anthropic = _make_fake_anthropic()
-        fake_anthropic.Anthropic.return_value.messages.create.side_effect = Exception("Connection timeout")
+        fake_anthropic.Anthropic.return_value.messages.create.side_effect = Exception(
+            "Connection timeout"
+        )
 
         with patch.object(converter_module, "anthropic", fake_anthropic):
             result = convert("221B Baker Street, London")
@@ -413,6 +488,7 @@ class TestErrorHandling:
 # convert_to_xml
 # ---------------------------------------------------------------------------
 
+
 class TestConvertToXml:
     def test_convert_to_xml_returns_xml_string(self):
         pytest.importorskip("lxml")
@@ -450,6 +526,7 @@ class TestConvertToXml:
 # convert_batch
 # ---------------------------------------------------------------------------
 
+
 class TestConvertBatch:
     def test_convert_batch_returns_one_result_per_input(self):
         payloads = [UK_STANDARD_PAYLOAD, US_STANDARD_PAYLOAD, DE_STANDARD_PAYLOAD]
@@ -465,7 +542,9 @@ class TestConvertBatch:
             nonlocal call_count
             payload = payloads[call_count]
             call_count += 1
-            data = {k: v for k, v in payload.items() if k != "confidence" and v is not None}
+            data = {
+                k: v for k, v in payload.items() if k != "confidence" and v is not None
+            }
             confidence = payload.get("confidence", {})
             addr = PostalAddress24(**data)
             return ConversionResult(
@@ -496,7 +575,9 @@ class TestConvertBatch:
             error="Parse error",
         )
 
-        with patch("address_forge.converter.convert", side_effect=[good_result, bad_result]):
+        with patch(
+            "address_forge.converter.convert", side_effect=[good_result, bad_result]
+        ):
             results = convert_batch(["London, UK", "???"])
 
         assert results[0].success is True

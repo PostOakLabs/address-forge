@@ -25,10 +25,10 @@ from address_forge.validator import (
     remediation_report,
 )
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_address(**kwargs) -> PostalAddress24:
     """Build a minimal valid PostalAddress24, overriding with kwargs."""
@@ -54,6 +54,7 @@ def _warning_codes(result) -> list[str]:
 # ---------------------------------------------------------------------------
 # 1. Valid address — clean pass
 # ---------------------------------------------------------------------------
+
 
 class TestValidAddress:
     def test_fully_structured_uk_address_passes(self):
@@ -81,6 +82,7 @@ class TestValidAddress:
 # ---------------------------------------------------------------------------
 # 2. T9351 — missing TownName
 # ---------------------------------------------------------------------------
+
 
 class TestT9351MissingTownName:
     def test_missing_town_name_triggers_t9351(self):
@@ -124,6 +126,7 @@ class TestT9351MissingTownName:
 # 3. T9352 — missing Country
 # ---------------------------------------------------------------------------
 
+
 class TestT9352MissingCountry:
     def test_missing_country_triggers_t9352(self):
         address = PostalAddress24.model_construct(
@@ -152,6 +155,7 @@ class TestT9352MissingCountry:
 # ---------------------------------------------------------------------------
 # 4. T9353 — unstructured address only
 # ---------------------------------------------------------------------------
+
 
 class TestT9353UnstructuredOnly:
     def test_address_lines_only_triggers_t9353(self):
@@ -189,12 +193,15 @@ class TestT9353UnstructuredOnly:
         )
         result = validate(address)
         t9353 = next(e for e in result.errors if e.code == "T9353")
-        assert "StrtNm" in t9353.remediation or "structured" in t9353.remediation.lower()
+        assert (
+            "StrtNm" in t9353.remediation or "structured" in t9353.remediation.lower()
+        )
 
 
 # ---------------------------------------------------------------------------
 # 5. T9354 — invalid country code
 # ---------------------------------------------------------------------------
+
 
 class TestT9354InvalidCountryCode:
     def test_invalid_country_code_triggers_t9354(self):
@@ -224,12 +231,15 @@ class TestT9354InvalidCountryCode:
         for code in ["GB", "US", "DE", "FR", "SG", "JP", "AU"]:
             address = _make_address(country=code)
             result = validate(address)
-            assert "T9354" not in _error_codes(result), f"T9354 incorrectly fired for {code}"
+            assert "T9354" not in _error_codes(
+                result
+            ), f"T9354 incorrectly fired for {code}"
 
 
 # ---------------------------------------------------------------------------
 # 6. Multiple simultaneous errors
 # ---------------------------------------------------------------------------
+
 
 class TestMultipleSimultaneousErrors:
     def test_missing_town_and_country_returns_two_errors(self):
@@ -266,6 +276,7 @@ class TestMultipleSimultaneousErrors:
 # ---------------------------------------------------------------------------
 # 7. Warnings
 # ---------------------------------------------------------------------------
+
 
 class TestWarnings:
     def test_w0001_hybrid_address_warning(self):
@@ -304,6 +315,7 @@ class TestWarnings:
 # 8. Batch validation
 # ---------------------------------------------------------------------------
 
+
 class TestBatchValidation:
     def test_validate_batch_returns_one_result_per_address(self):
         addresses = [
@@ -329,6 +341,7 @@ class TestBatchValidation:
 # ---------------------------------------------------------------------------
 # 9. Remediation report
 # ---------------------------------------------------------------------------
+
 
 class TestRemediationReport:
     def test_remediation_report_contains_totals(self):
@@ -360,11 +373,14 @@ class TestRemediationReport:
 # 10. ValidationResult helpers
 # ---------------------------------------------------------------------------
 
+
 class TestValidationResultHelpers:
     def test_all_findings_combines_errors_warnings_info(self):
         address = PostalAddress24(town_name="London", country="GB")
         result = validate(address)
-        assert len(result.all_findings) == len(result.errors) + len(result.warnings) + len(result.info)
+        assert len(result.all_findings) == len(result.errors) + len(
+            result.warnings
+        ) + len(result.info)
 
     def test_summary_returns_string(self):
         address = _make_address()

@@ -71,6 +71,7 @@ Rules:
 # Converter
 # ---------------------------------------------------------------------------
 
+
 class ConversionResult:
     """Result of a single address conversion."""
 
@@ -134,7 +135,9 @@ def convert(
     if country_hint:
         rules = get_country_rules(country_hint)
         if rules:
-            user_prompt += f"\n\nCountry hint: {country_hint}. Country-specific rules:\n{rules}"
+            user_prompt += (
+                f"\n\nCountry hint: {country_hint}. Country-specific rules:\n{rules}"
+            )
         else:
             user_prompt += f"\n\nCountry hint: {country_hint}"
 
