@@ -7,12 +7,12 @@ is mandatory for all cross-border MX messages from SWIFT SR 2026 onward.
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 from pydantic import BaseModel, Field, model_validator
 
 
-class AddressType(str, Enum):
+class AddressType(StrEnum):
     """ISO 20022 AddressType2Code values."""
 
     ADDR = "ADDR"  # Postal address
@@ -143,7 +143,7 @@ class PostalAddress24(BaseModel):
     _confidence: dict[str, float] | None = None
 
     @model_validator(mode="after")
-    def validate_sr2026_compliance(self) -> "PostalAddress24":
+    def validate_sr2026_compliance(self) -> PostalAddress24:
         """Warn if the address relies solely on free-text lines (SR 2026 reject risk)."""
         has_structured = any(
             [

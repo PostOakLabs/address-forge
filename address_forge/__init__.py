@@ -22,9 +22,9 @@ __version__ = "0.1.0"
 __author__ = "PostOakLabs"
 __license__ = "MIT"
 
-from .converter import convert, convert_batch, convert_to_xml, ConversionResult
-from .models import PostalAddress24, AddressType
-from .validator import validate, validate_batch, remediation_report, ValidationResult
+from .converter import ConversionResult, convert, convert_batch, convert_to_xml
+from .models import AddressType, PostalAddress24
+from .validator import ValidationResult, remediation_report, validate, validate_batch
 
 __all__ = [
     # Conversion

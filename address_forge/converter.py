@@ -21,7 +21,6 @@ except ImportError:  # allow import of module without SDK installed (tests mock 
 from .countries import get_country_rules
 from .models import PostalAddress24
 
-
 # ---------------------------------------------------------------------------
 # Prompt template
 # ---------------------------------------------------------------------------

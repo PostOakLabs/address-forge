@@ -14,12 +14,12 @@ References:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from enum import Enum
+from enum import StrEnum
 
 from .models import PostalAddress24
 
 
-class ErrorSeverity(str, Enum):
+class ErrorSeverity(StrEnum):
     ERROR = "ERROR"  # Message will be rejected by SWIFT from SR 2026
     WARNING = "WARNING"  # Message may be rejected; remediation strongly recommended
     INFO = "INFO"  # Informational only
