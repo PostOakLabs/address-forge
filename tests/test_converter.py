@@ -33,6 +33,11 @@ from address_forge.converter import (
 )
 from address_forge.models import PostalAddress24
 
+pytestmark = pytest.mark.skipif(
+    not os.getenv("ANTHROPIC_API_KEY"),
+    reason="Requires Anthropic API key"
+)
+
 # ---------------------------------------------------------------------------
 # Build a fake anthropic module so patch targets always exist
 # ---------------------------------------------------------------------------
