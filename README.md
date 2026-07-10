@@ -2,7 +2,9 @@
 
 **ISO 20022 structured address cleansing & validation for SWIFT SR 2026 compliance.**
 
-A developer tool — web UI, CLI, and REST API — that converts free-text postal addresses into `PostalAddress24`-compliant structured format and validates them against SWIFT's November 2026 rejection rules.
+A developer tool that converts free-text postal addresses into `PostalAddress24`-compliant structured format and validates them against SWIFT's November 2026 rejection rules.
+
+**Shipped: CLI.** A REST API and web UI are designed but not built yet — see [Status](#status).
 
 ---
 
@@ -35,7 +37,7 @@ Every bank, payment processor, corporate treasury, and fintech using FINplus for
 
 ## Quick start
 
-### CLI
+### CLI (shipped)
 
 ```bash
 pip install address-forge
@@ -47,9 +49,18 @@ address-forge convert "221B Baker Street, London, NW1 6XE, United Kingdom"
 address-forge validate --input addresses.csv --output report.json
 ```
 
-### REST API
+## Status
+
+| Surface | State |
+|---|---|
+| CLI (`address-forge convert` / `validate` / `validate-csv` / `countries`) | **Shipped.** See `address_forge/cli.py`. |
+| REST API | **Not built.** `fastapi`/`uvicorn` are declared as optional dependencies in `pyproject.toml` for the planned service, but no server module exists in this repo yet. The example below is the target shape, not a working endpoint. |
+| Web sandbox | **Not built.** No hosted sandbox exists at this time. |
+
+Planned REST API shape (target, not yet implemented):
 
 ```bash
+# NOT YET IMPLEMENTED
 docker run -p 8080:8080 postoaklabs/address-forge
 
 curl -X POST http://localhost:8080/v1/convert \
@@ -57,7 +68,7 @@ curl -X POST http://localhost:8080/v1/convert \
   -d '{"address": "221B Baker Street, London, NW1 6XE, United Kingdom"}'
 ```
 
-**Response:**
+Target response shape:
 
 ```json
 {
@@ -79,13 +90,6 @@ curl -X POST http://localhost:8080/v1/convert \
   "validation_errors": []
 }
 ```
-
-### Web sandbox
-
-A hosted sandbox is available at **[address-forge.postoaklabs.io](https://address-forge.postoaklabs.io)** *(coming soon)*
-
-- Paste any address → see ISO 20022 XML output → edit inline
-- Free tier: 100 addresses/day
 
 ---
 
@@ -123,11 +127,11 @@ A hosted sandbox is available at **[address-forge.postoaklabs.io](https://addres
 
 ## Roadmap
 
-- [x] Single address conversion (CLI + REST)
-- [x] SR 2026 field validation
-- [x] Bulk CSV processing
-- [ ] SWIFT FINplus error code output
-- [ ] Batch REST API with API key auth
+- [x] Single address conversion (CLI)
+- [x] SR 2026 field validation (CLI)
+- [x] Bulk CSV processing (CLI)
+- [x] SWIFT FINplus error code output (CLI, codes `T9351`–`T9354`)
+- [ ] REST API (no server module in this repo yet — `fastapi`/`uvicorn` are declared but unused)
 - [ ] Web sandbox UI
 - [ ] Address deduplication & normalisation across bulk uploads
 - [ ] Country-specific postal format rules (UK, US, DE, FR, JP, AU)
