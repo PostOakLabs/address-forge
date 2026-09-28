@@ -39,15 +39,31 @@ Every bank, payment processor, corporate treasury, and fintech using FINplus for
 
 ### CLI (shipped)
 
+Requires Python 3.11+.
+
 ```bash
 pip install address-forge
+export ANTHROPIC_API_KEY=sk-ant-...   # conversion is LLM-powered, see below
 
-# Single address
+# Single address (sends the text to the Anthropic API)
 address-forge convert "221B Baker Street, London, NW1 6XE, United Kingdom"
 
-# Bulk CSV
-address-forge validate --input addresses.csv --output report.json
+# Terminal summary with confidence bars
+address-forge convert "221B Baker Street, London NW1 6XE, UK" --format summary
+
+# Bulk CSV: convert + validate every row, write the remediation report
+address-forge validate-csv addresses.csv --output report.json
+
+# Offline, no API key: validate an already-structured address / list countries
+address-forge validate '{"town_name": "London", "country": "GB"}'
+address-forge countries
 ```
+
+`convert` options: `--format json|xml|summary`, `--country-hint CC`, `--model`, `--validate/--no-validate`, `--api-key`. `validate-csv` options: `--address-col`, `--output`, `--api-key`.
+
+## Conversion is LLM-powered
+
+Free-text parsing is done by Claude via the Anthropic API, so `convert` and `validate-csv` send the address text to Anthropic and fail without `ANTHROPIC_API_KEY` (or `--api-key`). Default model is `claude-sonnet-4-20250514`; override with `--model`. By contrast, `validate` and `countries` are pure rule code and run fully offline: use `validate` when a structured address must not leave your environment. As everywhere in this suite, don't process real personal data; use synthetic or anonymised addresses.
 
 ## Status
 
@@ -157,6 +173,4 @@ MIT License. See [LICENSE](LICENSE).
 
 PostOakLabs builds open-source developer tooling at the intersection of ISO 20022, tokenized assets, and A2A payments. See also:
 
-- [`iso20022-token-bridge`](https://github.com/PostOakLabs/iso20022-token-bridge) — ISO 20022 ↔ tokenized MMF middleware
 - [`a2a-iso-gateway`](https://github.com/PostOakLabs/a2a-iso-gateway) — Open banking A2A → ISO 20022 translator
-- [`mmf-token-sandbox`](https://github.com/PostOakLabs/mmf-token-sandbox) — Tokenized MMF developer playground
